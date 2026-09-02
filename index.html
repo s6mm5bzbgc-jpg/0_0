@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Tone Architect - AI Guitar Rig & Tone Matcher</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            rack: '#12141a',
+            rackBorder: '#262a36',
+            stompOrange: '#f97316',
+            stompCyan: '#06b6d4',
+            stompPurple: '#a855f7'
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans flex flex-col">
+
+  <header class="bg-rack border-b border-rackBorder px-6 py-4 flex justify-between items-center sticky top-0 z-50">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-red-600 flex items-center justify-center text-white shadow-lg shadow-orange-950">
+        <i class="fa-solid fa-guitar text-xl"></i>
+      </div>
+      <div>
+        <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+          Tone Architect <span class="text-xs px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30 font-mono">PRO</span>
+        </h1>
+        <p class="text-xs text-slate-400">아티스트 고증 & 보유 장비 맞춤형 시그널 체인 설계</p>
+      </div>
+    </div>
+    
+    <button onclick="openApiKeyModal()" class="flex items-center gap-2 text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3.5 py-2 rounded-lg border border-slate-700 transition">
+      <i class="fa-solid fa-key text-amber-400"></i>
+      <span id="api-btn-text">API Key 설정</span>
+    </button>
+  </header>
+
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+    <aside class="lg:col-span-4 flex flex-col gap-5">
+      <div class="bg-rack border border-rackBorder rounded-2xl p-5 shadow-xl">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-base font-bold flex items-center gap-2 text-slate-200">
+            <i class="fa-solid fa-toolbox text-amber-500"></i> 내 보유 장비 관리
+          </h2>
+          <span class="text-[11px] text-emerald-400 flex items-center gap-1">
+            <i class="fa-solid fa-cloud-arrow-down"></i> 자동 저장됨
+          </span>
+        </div>
+
+        <div class="mb-4">
+          <label class="text-xs font-semibold text-slate-400 block mb-1.5">🎸 보유 기타 (픽업 명시 추천)</label>
+          <div class="flex gap-2 mb-2">
+            <input id="input-guitar" type="text" placeholder="예: Stratocaster SSH" class="flex-1 bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-amber-500" onkeypress="if(event.key==='Enter') addGear('guitars')" />
+            <button onclick="addGear('guitars')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg text-xs font-medium">추가</button>
+          </div>
+          <div id="list-guitars" class="flex flex-wrap gap-1.5 min-h-[28px]"></div>
+        </div>
+
+        <div class="mb-4">
+          <label class="text-xs font-semibold text-slate-400 block mb-1.5">🎛️ 페달 및 모델러 (HX Stomp, Quad Cortex 등)</label>
+          <div class="flex gap-2 mb-2">
+            <input id="input-pedal" type="text" placeholder="예: Tube Screamer, HX Stomp" class="flex-1 bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-amber-500" onkeypress="if(event.key==='Enter') addGear('pedals')" />
+            <button onclick="addGear('pedals')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg text-xs font-medium">추가</button>
+          </div>
+          <div id="list-pedals" class="flex flex-wrap gap-1.5 min-h-[28px]"></div>
+        </div>
+
+        <div>
+          <label class="text-xs font-semibold text-slate-400 block mb-1.5">🔊 앰프 및 재생 환경</label>
+          <div class="flex gap-2 mb-2">
+            <input id="input-amp" type="text" placeholder="예: Fender Blues Jr, 오디오 인터페이스" class="flex-1 bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-amber-500" onkeypress="if(event.key==='Enter') addGear('amps')" />
+            <button onclick="addGear('amps')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg text-xs font-medium">추가</button>
+          </div>
+          <div id="list-amps" class="flex flex-wrap gap-1.5 min-h-[28px]"></div>
+        </div>
+      </div>
+    </aside>
+
+    <section class="lg:col-span-8 flex flex-col gap-6">
+
+      <div class="bg-rack border border-rackBorder rounded-2xl p-5 shadow-xl">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+          <div>
+            <label class="text-xs text-slate-400 font-medium block mb-1">아티스트 (Artist)</label>
+            <input id="artist" type="text" value="Pink Floyd" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-amber-500" />
+          </div>
+          <div>
+            <label class="text-xs text-slate-400 font-medium block mb-1">곡명 (Song Title)</label>
+            <input id="song" type="text" value="Comfortably Numb" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-amber-500" />
+          </div>
+          <div>
+            <label class="text-xs text-slate-400 font-medium block mb-1">타겟 파트 (Part)</label>
+            <select id="part" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-amber-500">
+              <option value="기타 솔로 (Guitar Solo / Lead)">기타 솔로 (Guitar Solo / Lead)</option>
+              <option value="메인 리듬 (Main Rhythm)">메인 리듬 (Main Rhythm)</option>
+              <option value="클린 인트로 & 아르페지오">클린 인트로 & 아르페지오</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-xs text-slate-400 font-medium block mb-1">레퍼런스 버전</label>
+            <select id="version" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-amber-500">
+              <option value="오리지널 스튜디오 앨범 음원">오리지널 스튜디오 앨범 음원</option>
+              <option value="대표 라이브 실황 (Live)">대표 라이브 실황 (Live)</option>
+            </select>
+          </div>
+        </div>
+
+        <button id="generate-btn" onclick="generateTone()" class="w-full bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 hover:from-amber-600 hover:to-red-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-orange-950/40 flex items-center justify-center gap-2 transition active:scale-[0.99]">
+          <i class="fa-solid fa-wand-magic-sparkles"></i>
+          <span>정밀 시그널 체인 설계하기</span>
+        </button>
+      </div>
+
+      <div id="loading" class="hidden bg-rack border border-rackBorder rounded-2xl p-12 text-center flex flex-col items-center justify-center gap-4">
+        <div class="w-12 h-12 border-4 border-amber-500/20 border-t-amber-500 rounded-full animate-spin"></div>
+        <div class="text-slate-300 font-medium">아티스트의 레코딩 기어를 분석하고 시그널 체인을 라우팅 중입니다...</div>
+        <p class="text-xs text-slate-500">프론트 드라이브단과 FX 루프 공간계를 분리 매핑하고 있습니다.</p>
+      </div>
+
+      <div id="results" class="hidden flex flex-col gap-6">
+        
+        <div class="bg-rack border border-rackBorder rounded-2xl p-5 shadow-xl">
+          <div class="flex items-center gap-2 text-amber-400 text-xs font-semibold tracking-wide uppercase mb-2">
+            <i class="fa-solid fa-compact-disc"></i> Sound Texture & Guitar Config
+          </div>
+          <h3 id="res-title" class="text-lg font-bold text-white mb-2"></h3>
+          <p id="res-summary" class="text-xs text-slate-300 bg-slate-900/70 p-3.5 rounded-xl border border-slate-800/80 mb-4 leading-relaxed"></p>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div class="bg-slate-900/90 border border-slate-800 p-3.5 rounded-xl">
+              <span class="text-[11px] text-slate-400 block mb-1">추천 악기</span>
+              <span id="res-guitar-choice" class="text-xs font-bold text-emerald-400"></span>
+            </div>
+            <div class="bg-slate-900/90 border border-slate-800 p-3.5 rounded-xl">
+              <span class="text-[11px] text-slate-400 block mb-1">픽업 셀렉터</span>
+              <span id="res-pickup-pos" class="text-xs font-bold text-amber-300"></span>
+            </div>
+            <div class="bg-slate-900/90 border border-slate-800 p-3.5 rounded-xl">
+              <span class="text-[11px] text-slate-400 block mb-1">볼륨/톤 컨트롤</span>
+              <span id="res-controls" class="text-xs font-medium text-slate-200"></span>
+            </div>
+          </div>
+          <div id="res-touch" class="mt-3 text-xs text-slate-400 bg-slate-950/60 p-2.5 rounded-lg border border-slate-900 flex items-start gap-2">
+            <i class="fa-solid fa-hand text-amber-400 mt-0.5"></i>
+            <span id="res-touch-text"></span>
+          </div>
+        </div>
+
+        <div class="bg-rack border border-rackBorder rounded-2xl p-5 shadow-xl">
+          <div class="flex justify-between items-center mb-3">
+            <h4 class="text-sm font-bold text-slate-200 flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-orange-500"></span>
+              앰프 전면 인풋단 (Front of Amp: 드라이브 / 부스트)
+            </h4>
+            <span class="text-[11px] text-slate-400">기타 ➔ 페달 ➔ 앰프 전면 인풋</span>
+          </div>
+          <div id="front-chain-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5"></div>
+        </div>
+
+        <div class="bg-rack border border-rackBorder rounded-2xl p-5 shadow-xl border-l-4 border-l-purple-500">
+          <div class="flex justify-between items-center mb-3">
+            <h4 class="text-sm font-bold text-slate-200 flex items-center gap-2">
+              <i class="fa-solid fa-sliders text-purple-400"></i>
+              앰프 & 캐비닛 설정
+            </h4>
+            <span id="amp-channel" class="text-xs bg-purple-950/60 text-purple-300 border border-purple-800/60 px-2.5 py-0.5 rounded-full font-mono"></span>
+          </div>
+          <div class="mb-4">
+            <span class="text-xs text-slate-400">매칭 앰프:</span>
+            <span id="amp-matched" class="text-sm font-bold text-white ml-1"></span>
+            <p id="amp-headroom" class="text-xs text-slate-400 mt-1"></p>
+          </div>
+          <div id="amp-eq-container" class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-center"></div>
+        </div>
+
+        <div class="bg-rack border border-rackBorder rounded-2xl p-5 shadow-xl">
+          <div class="flex justify-between items-center mb-3">
+            <h4 class="text-sm font-bold text-slate-200 flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
+              FX 루프 체인 (Post-Amp / 앰프 뒷단 공간계)
+            </h4>
+            <span class="text-[11px] text-slate-400">앰프 Send ➔ 이펙터 ➔ 앰프 Return</span>
+          </div>
+          <div id="fx-chain-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5"></div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <div id="api-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-rack border border-rackBorder max-w-md w-full rounded-2xl p-6 shadow-2xl">
+      <h3 class="text-lg font-bold text-white mb-2 flex items-center gap-2">
+        <i class="fa-solid fa-key text-amber-400"></i> OpenAI API Key 설정
+      </h3>
+      <p class="text-xs text-slate-400 mb-4 leading-relaxed">
+        API 키는 서버로 전송되지 않고 본인 기기(브라우저)의 <code class="text-amber-300">localStorage</code>에만 안전하게 보관됩니다.
+      </p>
+      <input id="api-key-input" type="password" placeholder="sk-..." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-200 mb-4 focus:outline-none focus:border-amber-500 font-mono" />
+      <div class="flex justify-end gap-2">
+        <button onclick="closeApiKeyModal()" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300 hover:bg-slate-700">취소</button>
+        <button onclick="saveApiKey()" class="px-4 py-2 rounded-xl text-xs bg-amber-500 text-black font-bold hover:bg-amber-400">저장하기</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 1. 장비 기본값 및 영구 저장소(localStorage) 로딩
+    const DEFAULT_GEAR = {
+      guitars: ["Stratocaster (SSH)", "Les Paul Standard"],
+      pedals: ["Ibanez TS9", "ProCo Rat", "Line 6 HX Stomp", "Analog Delay"],
+      amps: ["Fender Deluxe Reverb", "오디오 인터페이스 / DAW 시뮬레이터"]
+    };
+
+    let userGear = JSON.parse(localStorage.getItem("tone_architect_gear")) || DEFAULT_GEAR;
+
+    function saveGearToStorage() {
+      localStorage.setItem("tone_architect_gear", JSON.stringify(userGear));
+      renderGearTags();
+    }
+
+    function renderGearTags() {
+      ['guitars', 'pedals', 'amps'].forEach(category => {
+        const container = document.getElementById(`list-${category}`);
+        container.innerHTML = '';
+        userGear[category].forEach((item, idx) => {
+          const tag = document.createElement('span');
+          tag.className = "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] bg-slate-900 text-slate-200 border border-slate-800";
+          tag.innerHTML = `
+            <span>${item}</span>
+            <button onclick="deleteGear('${category}', ${idx})" class="text-slate-500 hover:text-red-400 text-[10px]">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          `;
+          container.appendChild(tag);
+        });
+      });
+    }
+
+    function addGear(category) {
+      const input = document.getElementById(`input-${category.slice(0, -1)}`);
+      const val = input.value.trim();
+      if (val) {
+        userGear[category].push(val);
+        input.value = '';
+        saveGearToStorage();
+      }
+    }
+
+    function deleteGear(category, index) {
+      userGear[category].splice(index, 1);
+      saveGearToStorage();
+    }
+
+    // 2. API Key 관리
+    function openApiKeyModal() { document.getElementById("api-modal").classList.remove("hidden"); }
+    function closeApiKeyModal() { document.getElementById("api-modal").classList.add("hidden"); }
+    function saveApiKey() {
+      const key = document.getElementById("api-key-input").value.trim();
+      if (key) {
+        localStorage.setItem("openai_api_key", key);
+        updateApiButtonState();
+        closeApiKeyModal();
+      }
+    }
+    function updateApiButtonState() {
+      const key = localStorage.getItem("openai_api_key");
+      const btnText = document.getElementById("api-btn-text");
+      if (key) {
+        btnText.innerText = "Key 등록 완료";
+        btnText.classList.add("text-emerald-400");
+      } else {
+        btnText.innerText = "API Key 설정";
+        btnText.classList.remove("text-emerald-400");
+      }
+    }
+
+    // 3. AI 톤 생성 로직
+    const SYSTEM_PROMPT = `
+당신은 레코딩 엔지니어이자 마스터 기타 테크니션입니다.
+사용자의 타겟 정보와 보유 장비를 분석하여 앰프 전면(Front)과 FX 루프(Post)를 엄격히 구분한 시그널 체인을 JSON 규격으로 반환하세요.
+보유 장비에 HX Stomp, Helix, Quad Cortex 등이 포함되어 있다면 실제 내장 블록명을 기재하세요.
+
+JSON 출력 형식:
+{
+  "reference_analysis": "톤 질감 분석 (2줄)",
+  "guitar_config": {
+    "selected_guitar": "악기명",
+    "pickup_position": "스위치 위치",
+    "guitar_controls": "볼륨/톤 노브",
+    "touch_dynamics": "피킹 터치 팁"
+  },
+  "front_chain": [
+    {
+      "step": 1,
+      "role": "역할",
+      "matched_gear": "매칭된 장비명",
+      "modeler_block": "모델러 내장 블록명(없으면 실물 페달)",
+      "knobs": {"Drive": "10시", "Tone": "1시", "Level": "2시"},
+      "tip": "톤 팁"
+    }
+  ],
+  "amp_and_cab": {
+    "matched_amp": "앰프명",
+    "channel_mode": "Clean / Crunch / Lead",
+    "headroom_guide": "헤드룸 조절 팁",
+    "eq": {"Gain": "11시", "Treble": "1시", "Middle": "12시", "Bass": "11시", "Presence": "1시"}
+  },
+  "fx_loop_chain": [
+    {
+      "step": 1,
+      "role": "공간계 역할",
+      "matched_gear": "장비명",
+      "modeler_block": "블록명",
+      "knobs": {"Time": "350ms", "Mix": "20%"},
+      "tip": "라우팅 이유"
+    }
+  ]
+}`;
+
+    async function generateTone() {
+      const apiKey = localStorage.getItem("openai_api_key");
+      if (!apiKey) {
+        alert("먼저 상단 [API Key 설정] 버튼을 눌러 OpenAI 키를 등록해주세요.");
+        openApiKeyModal();
+        return;
+      }
+
+      const artist = document.getElementById("artist").value;
+      const song = document.getElementById("song").value;
+      const part = document.getElementById("part").value;
+      const version = document.getElementById("version").value;
+
+      document.getElementById("results").classList.add("hidden");
+      document.getElementById("loading").classList.remove("hidden");
+
+      const userPayload = `
+      [타겟 정보]
+      아티스트: ${artist}, 곡명: ${song}, 파트: ${part}, 버전: ${version}
+      
+      [보유 장비]
+      기타: ${userGear.guitars.join(", ")}
+      페달/모델러: ${userGear.pedals.join(", ")}
+      앰프/스피커: ${userGear.amps.join(", ")}
+      `;
+
+      try {
+        const response = await fetch("https://api.openai.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${apiKey}`
+          },
+          body: JSON.stringify({
+            model: "gpt-4o-mini",
+            response_format: { type: "json_object" },
+            messages: [
+              { role: "system", content: SYSTEM_PROMPT },
+              { role: "user", content: userPayload }
+            ],
+            temperature: 0.2
+          })
+        });
+
+        if (!response.ok) throw new Error("API 호출 실패: " + response.statusText);
+        const data = await response.json();
+        const tone = JSON.parse(data.choices[0].message.content);
+        renderResults(artist, song, part, tone);
+      } catch (err) {
+        alert("오류 발생: " + err.message);
+      } finally {
+        document.getElementById("loading").classList.add("hidden");
+      }
+    }
+
+    function renderResults(artist, song, part, tone) {
+      document.getElementById("res-title").innerText = `${artist} - ${song} (${part})`;
+      document.getElementById("res-summary").innerText = tone.reference_analysis;
+
+      // 악기 설정
+      document.getElementById("res-guitar-choice").innerText = tone.guitar_config.selected_guitar;
+      document.getElementById("res-pickup-pos").innerText = tone.guitar_config.pickup_position;
+      document.getElementById("res-controls").innerText = tone.guitar_config.guitar_controls;
+      document.getElementById("res-touch-text").innerText = tone.guitar_config.touch_dynamics;
+
+      // 앰프 전면 체인
+      const frontBox = document.getElementById("front-chain-container");
+      frontBox.innerHTML = "";
+      tone.front_chain.forEach(block => {
+        frontBox.innerHTML += createPedalCard(block, "border-orange-500/40", "bg-orange-500/10 text-orange-400");
+      });
+
+      // 앰프 & 캐비닛
+      document.getElementById("amp-matched").innerText = tone.amp_and_cab.matched_amp;
+      document.getElementById("amp-channel").innerText = tone.amp_and_cab.channel_mode;
+      document.getElementById("amp-headroom").innerText = tone.amp_and_cab.headroom_guide;
+      const eqBox = document.getElementById("amp-eq-container");
+      eqBox.innerHTML = "";
+      for (const [k, v] of Object.entries(tone.amp_and_cab.eq)) {
+        eqBox.innerHTML += `
+          <div class="bg-slate-900 border border-slate-800 p-2.5 rounded-xl">
+            <span class="text-[10px] text-slate-400 block">${k}</span>
+            <span class="text-xs font-mono font-bold text-purple-300">${v}</span>
+          </div>
+        `;
+      }
+
+      // FX 루프 체인
+      const fxBox = document.getElementById("fx-chain-container");
+      fxBox.innerHTML = "";
+      if (tone.fx_loop_chain && tone.fx_loop_chain.length > 0) {
+        tone.fx_loop_chain.forEach(block => {
+          fxBox.innerHTML += createPedalCard(block, "border-cyan-500/40", "bg-cyan-500/10 text-cyan-400");
+        });
+      } else {
+        fxBox.innerHTML = `<div class="col-span-3 text-xs text-slate-500 py-3">루프단에 추가 공간계가 필요하지 않은 다이렉트 사운드입니다.</div>`;
+      }
+
+      document.getElementById("results").classList.remove("hidden");
+    }
+
+    function createPedalCard(block, borderColor, badgeColor) {
+      let knobsHtml = "";
+      for (const [k, v] of Object.entries(block.knobs)) {
+        knobsHtml += `<div class="flex justify-between text-[11px] text-slate-300"><span>${k}</span><span class="font-mono text-amber-400">${v}</span></div>`;
+      }
+
+      return `
+        <div class="bg-slate-900/90 border ${borderColor} rounded-xl p-3.5 flex flex-col justify-between shadow-md">
+          <div>
+            <div class="flex justify-between items-center mb-1.5">
+              <span class="text-[10px] px-2 py-0.5 rounded font-mono ${badgeColor}">Step ${block.step}</span>
+              <span class="text-[10px] text-slate-400 truncate max-w-[120px]">${block.modeler_block}</span>
+            </div>
+            <h5 class="text-xs font-bold text-white mb-0.5">${block.role}</h5>
+            <div class="text-[11px] text-emerald-400 mb-2.5 font-medium">${block.matched_gear}</div>
+            <div class="bg-slate-950/70 p-2 rounded-lg border border-slate-900 space-y-1 mb-2">
+              ${knobsHtml}
+            </div>
+          </div>
+          <p class="text-[10px] text-slate-400 leading-tight">${block.tip}</p>
+        </div>
+      `;
+    }
+
+    // 초기 실행
+    renderGearTags();
+    updateApiButtonState();
+  </script>
+</body>
+</html>
