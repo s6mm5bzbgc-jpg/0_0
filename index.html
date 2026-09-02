@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Tone Architect - AI Guitar Rig & Tone Matcher</title>
+  <title>Tone Architect - AI Guitar Rig & Tone Matcher (Gemini)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <script>
@@ -31,15 +31,15 @@
       </div>
       <div>
         <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-          Tone Architect <span class="text-xs px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30 font-mono">PRO</span>
+          Tone Architect <span class="text-xs px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 border border-blue-500/30 font-mono">Gemini Free</span>
         </h1>
         <p class="text-xs text-slate-400">아티스트 고증 & 보유 장비 맞춤형 시그널 체인 설계</p>
       </div>
     </div>
     
     <button onclick="openApiKeyModal()" class="flex items-center gap-2 text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3.5 py-2 rounded-lg border border-slate-700 transition">
-      <i class="fa-solid fa-key text-amber-400"></i>
-      <span id="api-btn-text">API Key 설정</span>
+      <i class="fa-solid fa-key text-blue-400"></i>
+      <span id="api-btn-text">Gemini Key 설정</span>
     </button>
   </header>
 
@@ -66,7 +66,7 @@
         </div>
 
         <div class="mb-4">
-          <label class="text-xs font-semibold text-slate-400 block mb-1.5">🎛️ 페달 및 모델러 (HX Stomp, Quad Cortex 등)</label>
+          <label class="text-xs font-semibold text-slate-400 block mb-1.5">🎛️ 페달 및 모델러 (HX Stomp, BD-2 등)</label>
           <div class="flex gap-2 mb-2">
             <input id="input-pedal" type="text" placeholder="예: Tube Screamer, HX Stomp" class="flex-1 bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-amber-500" onkeypress="if(event.key==='Enter') addGear('pedals')" />
             <button onclick="addGear('pedals')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg text-xs font-medium">추가</button>
@@ -114,22 +114,22 @@
           </div>
         </div>
 
-        <button id="generate-btn" onclick="generateTone()" class="w-full bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 hover:from-amber-600 hover:to-red-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-orange-950/40 flex items-center justify-center gap-2 transition active:scale-[0.99]">
+        <button id="generate-btn" onclick="generateTone()" class="w-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-indigo-950/40 flex items-center justify-center gap-2 transition active:scale-[0.99]">
           <i class="fa-solid fa-wand-magic-sparkles"></i>
           <span>정밀 시그널 체인 설계하기</span>
         </button>
       </div>
 
       <div id="loading" class="hidden bg-rack border border-rackBorder rounded-2xl p-12 text-center flex flex-col items-center justify-center gap-4">
-        <div class="w-12 h-12 border-4 border-amber-500/20 border-t-amber-500 rounded-full animate-spin"></div>
-        <div class="text-slate-300 font-medium">아티스트의 레코딩 기어를 분석하고 시그널 체인을 라우팅 중입니다...</div>
+        <div class="w-12 h-12 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin"></div>
+        <div class="text-slate-300 font-medium">Gemini AI가 아티스트의 기어를 분석하고 체인을 설계 중입니다...</div>
         <p class="text-xs text-slate-500">프론트 드라이브단과 FX 루프 공간계를 분리 매핑하고 있습니다.</p>
       </div>
 
       <div id="results" class="hidden flex flex-col gap-6">
         
         <div class="bg-rack border border-rackBorder rounded-2xl p-5 shadow-xl">
-          <div class="flex items-center gap-2 text-amber-400 text-xs font-semibold tracking-wide uppercase mb-2">
+          <div class="flex items-center gap-2 text-blue-400 text-xs font-semibold tracking-wide uppercase mb-2">
             <i class="fa-solid fa-compact-disc"></i> Sound Texture & Guitar Config
           </div>
           <h3 id="res-title" class="text-lg font-bold text-white mb-2"></h3>
@@ -150,7 +150,7 @@
             </div>
           </div>
           <div id="res-touch" class="mt-3 text-xs text-slate-400 bg-slate-950/60 p-2.5 rounded-lg border border-slate-900 flex items-start gap-2">
-            <i class="fa-solid fa-hand text-amber-400 mt-0.5"></i>
+            <i class="fa-solid fa-hand text-blue-400 mt-0.5"></i>
             <span id="res-touch-text"></span>
           </div>
         </div>
@@ -186,7 +186,7 @@
           <div class="flex justify-between items-center mb-3">
             <h4 class="text-sm font-bold text-slate-200 flex items-center gap-2">
               <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
-              FX 루프 체인 (Post-Amp / 앰프 뒷단 공간계)
+              FX 루프 체인 (Post-Amp / 공간계)
             </h4>
             <span class="text-[11px] text-slate-400">앰프 Send ➔ 이펙터 ➔ 앰프 Return</span>
           </div>
@@ -200,21 +200,21 @@
   <div id="api-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-rack border border-rackBorder max-w-md w-full rounded-2xl p-6 shadow-2xl">
       <h3 class="text-lg font-bold text-white mb-2 flex items-center gap-2">
-        <i class="fa-solid fa-key text-amber-400"></i> OpenAI API Key 설정
+        <i class="fa-solid fa-key text-blue-400"></i> Google Gemini API Key 설정
       </h3>
-      <p class="text-xs text-slate-400 mb-4 leading-relaxed">
-        API 키는 서버로 전송되지 않고 본인 기기(브라우저)의 <code class="text-amber-300">localStorage</code>에만 안전하게 보관됩니다.
+      <p class="text-xs text-slate-400 mb-3 leading-relaxed">
+        신용카드 결제 없이 <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-blue-400 underline font-semibold">Google AI Studio</a>에서 발급받은 무료 API 키를 입력하세요.
       </p>
-      <input id="api-key-input" type="password" placeholder="sk-..." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-200 mb-4 focus:outline-none focus:border-amber-500 font-mono" />
+      <input id="api-key-input" type="password" placeholder="AIzaSy..." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-200 mb-4 focus:outline-none focus:border-blue-500 font-mono" />
       <div class="flex justify-end gap-2">
         <button onclick="closeApiKeyModal()" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300 hover:bg-slate-700">취소</button>
-        <button onclick="saveApiKey()" class="px-4 py-2 rounded-xl text-xs bg-amber-500 text-black font-bold hover:bg-amber-400">저장하기</button>
+        <button onclick="saveApiKey()" class="px-4 py-2 rounded-xl text-xs bg-blue-500 text-white font-bold hover:bg-blue-400">저장하기</button>
       </div>
     </div>
   </div>
 
   <script>
-    // 1. 장비 기본값 및 영구 저장소(localStorage) 로딩
+    // 1. 장비 데이터 저장
     const DEFAULT_GEAR = {
       guitars: ["Stratocaster (SSH)", "Les Paul Standard"],
       pedals: ["Ibanez TS9", "ProCo Rat", "Line 6 HX Stomp", "Analog Delay"],
@@ -261,36 +261,36 @@
       saveGearToStorage();
     }
 
-    // 2. API Key 관리
+    // 2. Gemini API 키 모달 및 상태
     function openApiKeyModal() { document.getElementById("api-modal").classList.remove("hidden"); }
     function closeApiKeyModal() { document.getElementById("api-modal").classList.add("hidden"); }
     function saveApiKey() {
       const key = document.getElementById("api-key-input").value.trim();
       if (key) {
-        localStorage.setItem("openai_api_key", key);
+        localStorage.setItem("gemini_api_key", key);
         updateApiButtonState();
         closeApiKeyModal();
       }
     }
     function updateApiButtonState() {
-      const key = localStorage.getItem("openai_api_key");
+      const key = localStorage.getItem("gemini_api_key");
       const btnText = document.getElementById("api-btn-text");
       if (key) {
-        btnText.innerText = "Key 등록 완료";
-        btnText.classList.add("text-emerald-400");
+        btnText.innerText = "Gemini Key 등록됨";
+        btnText.classList.add("text-blue-400");
       } else {
-        btnText.innerText = "API Key 설정";
-        btnText.classList.remove("text-emerald-400");
+        btnText.innerText = "Gemini Key 설정";
+        btnText.classList.remove("text-blue-400");
       }
     }
 
-    // 3. AI 톤 생성 로직
+    // 3. Gemini API 연동 로직
     const SYSTEM_PROMPT = `
 당신은 레코딩 엔지니어이자 마스터 기타 테크니션입니다.
 사용자의 타겟 정보와 보유 장비를 분석하여 앰프 전면(Front)과 FX 루프(Post)를 엄격히 구분한 시그널 체인을 JSON 규격으로 반환하세요.
 보유 장비에 HX Stomp, Helix, Quad Cortex 등이 포함되어 있다면 실제 내장 블록명을 기재하세요.
 
-JSON 출력 형식:
+반드시 다음 JSON 형식에 정확히 맞춰 응답하세요:
 {
   "reference_analysis": "톤 질감 분석 (2줄)",
   "guitar_config": {
@@ -328,9 +328,9 @@ JSON 출력 형식:
 }`;
 
     async function generateTone() {
-      const apiKey = localStorage.getItem("openai_api_key");
+      const apiKey = localStorage.getItem("gemini_api_key");
       if (!apiKey) {
-        alert("먼저 상단 [API Key 설정] 버튼을 눌러 OpenAI 키를 등록해주세요.");
+        alert("먼저 우측 상단 [Gemini Key 설정] 버튼을 눌러 무료 API 키를 등록해주세요.");
         openApiKeyModal();
         return;
       }
@@ -354,26 +354,41 @@ JSON 출력 형식:
       `;
 
       try {
-        const response = await fetch("https://api.openai.com/v1/chat/completions", {
+        // Google Gemini 1.5 Flash 무료 REST API 엔드포인트
+        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+
+        const response = await fetch(endpoint, {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${apiKey}`
+            "Content-Type": "application/json"
           },
           body: JSON.stringify({
-            model: "gpt-4o-mini",
-            response_format: { type: "json_object" },
-            messages: [
-              { role: "system", content: SYSTEM_PROMPT },
-              { role: "user", content: userPayload }
+            system_instruction: {
+              parts: [{ text: SYSTEM_PROMPT }]
+            },
+            contents: [
+              {
+                parts: [{ text: userPayload }]
+              }
             ],
-            temperature: 0.2
+            generationConfig: {
+              response_mime_type: "application/json",
+              temperature: 0.2
+            }
           })
         });
 
-        if (!response.ok) throw new Error("API 호출 실패: " + response.statusText);
+        if (!response.ok) {
+          const errBody = await response.json().catch(() => ({}));
+          const detailedMsg = errBody.error?.message || response.statusText || ("HTTP " + response.status);
+          throw new Error(detailedMsg);
+        }
+
         const data = await response.json();
-        const tone = JSON.parse(data.choices[0].message.content);
+        const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!rawText) throw new Error("Gemini에서 유효한 응답을 받지 못했습니다.");
+
+        const tone = JSON.parse(rawText);
         renderResults(artist, song, part, tone);
       } catch (err) {
         alert("오류 발생: " + err.message);
@@ -452,7 +467,7 @@ JSON 출력 형식:
       `;
     }
 
-    // 초기 실행
+    // 초기 렌더링
     renderGearTags();
     updateApiButtonState();
   </script>
