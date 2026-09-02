@@ -31,7 +31,7 @@
       </div>
       <div>
         <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-          Tone Architect <span class="text-xs px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 border border-blue-500/30 font-mono">Gemini Free</span>
+          Tone Architect <span class="text-xs px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 border border-blue-500/30 font-mono">Gemini 3.6</span>
         </h1>
         <p class="text-xs text-slate-400">아티스트 고증 & 보유 장비 맞춤형 시그널 체인 설계</p>
       </div>
@@ -122,7 +122,7 @@
 
       <div id="loading" class="hidden bg-rack border border-rackBorder rounded-2xl p-12 text-center flex flex-col items-center justify-center gap-4">
         <div class="w-12 h-12 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin"></div>
-        <div class="text-slate-300 font-medium">Gemini AI가 가용 모델을 검색하고 체인을 설계 중입니다...</div>
+        <div class="text-slate-300 font-medium">Gemini 3.6 모델이 최적 시그널 체인을 분석하고 있습니다...</div>
         <p class="text-xs text-slate-500">프론트 드라이브단과 FX 루프 공간계를 분리 매핑하고 있습니다.</p>
       </div>
 
@@ -351,25 +351,8 @@
       `;
 
       try {
-        // 사용 가능한 최신 모델 자동 조회
-        const modelsRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
-        if (!modelsRes.ok) {
-          const errBody = await modelsRes.json().catch(() => ({}));
-          throw new Error(errBody.error?.message || "API 키가 올바르지 않습니다.");
-        }
-        const modelsData = await modelsRes.json();
-        const validModels = (modelsData.models || []).filter(m => 
-          m.supportedGenerationMethods && m.supportedGenerationMethods.includes("generateContent")
-        );
-
-        if (validModels.length === 0) {
-          throw new Error("사용 가능한 Gemini 모델을 찾을 수 없습니다.");
-        }
-
-        const selectedModel = validModels.find(m => m.name.includes("flash")) || validModels[0];
-
-        // 자동 선택된 모델 엔드포인트 호출
-        const endpoint = `https://generativelanguage.googleapis.com/v1beta/${selectedModel.name}:generateContent?key=${apiKey}`;
+        // API 에러 메시지가 추천한 최신 권장 모델로 직접 호출
+        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`;
 
         const response = await fetch(endpoint, {
           method: "POST",
@@ -392,7 +375,7 @@
 
         const data = await response.json();
         const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (!rawText) throw new Error("Gemini에서 유효한 응답을 받지 못했습니다.");
+        if (!rawText) throw new Error("유효한 톤 데이터를 받지 못했습니다.");
 
         const tone = JSON.parse(rawText);
         renderResults(artist, song, part, tone);
