@@ -122,7 +122,7 @@
 
       <div id="loading" class="hidden bg-rack border border-rackBorder rounded-2xl p-12 text-center flex flex-col items-center justify-center gap-4">
         <div class="w-12 h-12 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin"></div>
-        <div class="text-slate-300 font-medium">Gemini AI가 아티스트의 기어를 분석하고 체인을 설계 중입니다...</div>
+        <div class="text-slate-300 font-medium">Gemini AI가 가용 모델을 검색하고 체인을 설계 중입니다...</div>
         <p class="text-xs text-slate-500">프론트 드라이브단과 FX 루프 공간계를 분리 매핑하고 있습니다.</p>
       </div>
 
@@ -203,7 +203,7 @@
         <i class="fa-solid fa-key text-blue-400"></i> Google Gemini API Key 설정
       </h3>
       <p class="text-xs text-slate-400 mb-3 leading-relaxed">
-        신용카드 결제 없이 <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-blue-400 underline font-semibold">Google AI Studio</a>에서 발급받은 무료 API 키를 입력하세요.
+        <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-blue-400 underline font-semibold">Google AI Studio</a>에서 발급받은 무료 API 키를 입력하세요.
       </p>
       <input id="api-key-input" type="password" placeholder="AIzaSy..." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-200 mb-4 focus:outline-none focus:border-blue-500 font-mono" />
       <div class="flex justify-end gap-2">
@@ -214,7 +214,6 @@
   </div>
 
   <script>
-    // 1. 장비 데이터 저장
     const DEFAULT_GEAR = {
       guitars: ["Stratocaster (SSH)", "Les Paul Standard"],
       pedals: ["Ibanez TS9", "ProCo Rat", "Line 6 HX Stomp", "Analog Delay"],
@@ -261,7 +260,6 @@
       saveGearToStorage();
     }
 
-    // 2. Gemini API 키 모달 및 상태
     function openApiKeyModal() { document.getElementById("api-modal").classList.remove("hidden"); }
     function closeApiKeyModal() { document.getElementById("api-modal").classList.add("hidden"); }
     function saveApiKey() {
@@ -284,7 +282,6 @@
       }
     }
 
-    // 3. Gemini API 연동 로직
     const SYSTEM_PROMPT = `
 당신은 레코딩 엔지니어이자 마스터 기타 테크니션입니다.
 사용자의 타겟 정보와 보유 장비를 분석하여 앰프 전면(Front)과 FX 루프(Post)를 엄격히 구분한 시그널 체인을 JSON 규격으로 반환하세요.
@@ -354,23 +351,32 @@
       `;
 
       try {
-        // Google Gemini 1.5 Flash 무료 REST API 엔드포인트
-        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+        // 사용 가능한 최신 모델 자동 조회
+        const modelsRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+        if (!modelsRes.ok) {
+          const errBody = await modelsRes.json().catch(() => ({}));
+          throw new Error(errBody.error?.message || "API 키가 올바르지 않습니다.");
+        }
+        const modelsData = await modelsRes.json();
+        const validModels = (modelsData.models || []).filter(m => 
+          m.supportedGenerationMethods && m.supportedGenerationMethods.includes("generateContent")
+        );
+
+        if (validModels.length === 0) {
+          throw new Error("사용 가능한 Gemini 모델을 찾을 수 없습니다.");
+        }
+
+        const selectedModel = validModels.find(m => m.name.includes("flash")) || validModels[0];
+
+        // 자동 선택된 모델 엔드포인트 호출
+        const endpoint = `https://generativelanguage.googleapis.com/v1beta/${selectedModel.name}:generateContent?key=${apiKey}`;
 
         const response = await fetch(endpoint, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            system_instruction: {
-              parts: [{ text: SYSTEM_PROMPT }]
-            },
-            contents: [
-              {
-                parts: [{ text: userPayload }]
-              }
-            ],
+            system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+            contents: [{ parts: [{ text: userPayload }] }],
             generationConfig: {
               response_mime_type: "application/json",
               temperature: 0.2
@@ -401,20 +407,17 @@
       document.getElementById("res-title").innerText = `${artist} - ${song} (${part})`;
       document.getElementById("res-summary").innerText = tone.reference_analysis;
 
-      // 악기 설정
       document.getElementById("res-guitar-choice").innerText = tone.guitar_config.selected_guitar;
       document.getElementById("res-pickup-pos").innerText = tone.guitar_config.pickup_position;
       document.getElementById("res-controls").innerText = tone.guitar_config.guitar_controls;
       document.getElementById("res-touch-text").innerText = tone.guitar_config.touch_dynamics;
 
-      // 앰프 전면 체인
       const frontBox = document.getElementById("front-chain-container");
       frontBox.innerHTML = "";
       tone.front_chain.forEach(block => {
         frontBox.innerHTML += createPedalCard(block, "border-orange-500/40", "bg-orange-500/10 text-orange-400");
       });
 
-      // 앰프 & 캐비닛
       document.getElementById("amp-matched").innerText = tone.amp_and_cab.matched_amp;
       document.getElementById("amp-channel").innerText = tone.amp_and_cab.channel_mode;
       document.getElementById("amp-headroom").innerText = tone.amp_and_cab.headroom_guide;
@@ -429,7 +432,6 @@
         `;
       }
 
-      // FX 루프 체인
       const fxBox = document.getElementById("fx-chain-container");
       fxBox.innerHTML = "";
       if (tone.fx_loop_chain && tone.fx_loop_chain.length > 0) {
@@ -467,7 +469,6 @@
       `;
     }
 
-    // 초기 렌더링
     renderGearTags();
     updateApiButtonState();
   </script>
