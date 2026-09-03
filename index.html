@@ -62,7 +62,7 @@
   <header class="bg-rack border-b border-rackBorder px-4 md:px-6 py-3.5 flex justify-between items-center sticky top-0 z-40 backdrop-blur-md bg-opacity-95">
     <div class="flex items-center gap-3">
       <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 via-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-cyan-950">
-        <i class="fa-solid fa-microchip text-xl"></i>
+        <i class="fa-solid fa-layer-group text-xl"></i>
       </div>
       <div>
         <h1 class="text-lg md:text-xl font-bold tracking-tight text-white flex items-center gap-2">
@@ -136,7 +136,7 @@
             <i class="fa-solid fa-magnifying-glass"></i> 빠른 아티스트 & 곡 검색 (초성/철자 지원)
           </label>
           <div class="relative">
-            <input id="quick-search" type="text" placeholder="검색어 입력 (예: st, srv, strokes, stairway, 잔나비, 結束...)" 
+            <input id="quick-search" type="text" placeholder="검색어 입력 (예: yorushika, 言って, st, srv, strokes, 잔나비, 結束...)" 
               class="w-full bg-slate-900 border border-cyan-500/50 rounded-xl pl-10 pr-10 py-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 shadow-inner" autocomplete="off" />
             <i class="fa-solid fa-search absolute left-3.5 top-3.5 text-slate-500 text-sm"></i>
             <button id="quick-clear" onclick="clearQuickSearch()" class="hidden absolute right-3.5 top-3 text-slate-400 hover:text-white">
@@ -149,13 +149,13 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
           <div id="artist-wrapper" class="relative">
             <label class="text-xs text-slate-400 font-medium block mb-1">아티스트 (Artist)</label>
-            <input id="artist" type="text" value="Pink Floyd" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-cyan-500" autocomplete="off" />
+            <input id="artist" type="text" value="Yorushika" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-cyan-500" autocomplete="off" />
             <div id="artist-autocomplete" class="hidden absolute left-0 right-0 top-full mt-1.5 bg-slate-900/95 backdrop-blur-md border border-slate-700 rounded-xl shadow-2xl z-30 max-h-60 overflow-y-auto divide-y divide-slate-800"></div>
           </div>
 
           <div id="song-wrapper" class="relative">
             <label class="text-xs text-slate-400 font-medium block mb-1">곡명 (Song Title)</label>
-            <input id="song" type="text" value="Comfortably Numb" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-cyan-500" autocomplete="off" />
+            <input id="song" type="text" value="言って。" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-cyan-500" autocomplete="off" />
             <div id="song-autocomplete" class="hidden absolute left-0 right-0 top-full mt-1.5 bg-slate-900/95 backdrop-blur-md border border-slate-700 rounded-xl shadow-2xl z-30 max-h-60 overflow-y-auto divide-y divide-slate-800"></div>
           </div>
 
@@ -181,15 +181,15 @@
         </div>
 
         <button id="generate-btn" onclick="generateTone()" class="w-full bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-600 hover:from-cyan-600 hover:to-indigo-700 text-white font-black py-3.5 px-6 rounded-xl shadow-lg shadow-cyan-950/40 flex items-center justify-center gap-2 transition active:scale-[0.99]">
-          <i class="fa-solid fa-microchip text-lg"></i>
-          <span>출력 환경 최적화 & 디지털 정밀 체인 설계</span>
+          <i class="fa-solid fa-layer-group text-lg"></i>
+          <span>출력 환경 최적화 & 3단 스냅샷 일괄 설계</span>
         </button>
       </div>
 
       <div id="loading" class="hidden bg-rack border border-rackBorder rounded-2xl p-12 text-center flex flex-col items-center justify-center gap-4">
         <div class="w-12 h-12 border-4 border-cyan-500/20 border-t-cyan-400 rounded-full animate-spin"></div>
-        <div class="text-slate-200 font-semibold text-sm">출력 타겟 주파수 필터링 및 디지털 정밀 파라미터를 연산 중입니다...</div>
-        <p class="text-xs text-slate-500">클린/리듬/솔로 3단 스냅샷과 모델러 파라미터(0~10)를 일괄 매핑하고 있습니다.</p>
+        <div class="text-slate-200 font-semibold text-sm">곡의 사운드 고증과 3단 스냅샷 파라미터를 연산 중입니다...</div>
+        <p class="text-xs text-slate-500">출력 타겟 주파수 필터링과 디지털 정밀 수치(0~10)를 일괄 매핑하고 있습니다.</p>
       </div>
 
       <div id="results" class="hidden flex flex-col gap-6">
@@ -393,13 +393,17 @@
 
   <script>
     // ==========================================
-    // 0. 로컬 기타 명곡 DB & 검색
+    // 0. 로컬 기타 명곡 DB & 검색 (0초 반응)
     // ==========================================
     const GUITAR_DB = [
+      { artist: "Yorushika", song: "言って。", tag: "J-Rock" },
+      { artist: "Yorushika", song: "ただ君に晴れ", tag: "J-Rock" },
+      { artist: "Yorushika", song: "だから僕は音楽を辞めた", tag: "J-Rock" },
       { artist: "Stevie Ray Vaughan", song: "Pride and Joy", tag: "Texas Blues" },
       { artist: "Stevie Ray Vaughan", song: "Texas Flood", tag: "Blues Rock" },
       { artist: "The Strokes", song: "Reptilia", tag: "Garage Rock" },
       { artist: "結束バンド", song: "あのバンド", tag: "J-Rock / 봇치더록" },
+      { artist: "結束バンド", song: "ギターと孤独と蒼い惑星", tag: "J-Rock" },
       { artist: "Polyphia", song: "Playing God", tag: "Math Rock" },
       { artist: "Dire Straits", song: "Sultans of Swing", tag: "Classic Rock" },
       { artist: "Gary Moore", song: "Still Got the Blues", tag: "Blues Rock" },
@@ -557,7 +561,7 @@
     });
 
     // ==========================================
-    // 1. 내 장비 보관함
+    // 1. 내 장비 보관함 (localStorage)
     // ==========================================
     const DEFAULT_GEAR = {
       guitars: ["Stratocaster SSH", "Les Paul Standard"],
@@ -597,7 +601,7 @@
     }
 
     // ==========================================
-    // 2. 3-Scene & 톤 보관함
+    // 2. 3-Scene & 톤 보관함 (저장/불러오기)
     // ==========================================
     let currentToneBundle = null;
     let activeSceneIdx = 0;
@@ -792,7 +796,7 @@ ${fxList}
 
     const SYSTEM_PROMPT_RIG_PRO = `
 당신은 전설적인 사운드를 고증하는 마스터 톤 엔지니어이자 일렉트릭 기타 테크니션입니다.
-Google Search 도구를 적극 활용하여 해당 곡의 공식 레코딩 장비와 실제 연주 텍스처를 팩트체크하세요.
+주어진 도구를 활용하여 해당 곡의 공식 레코딩 장비와 실제 연주 텍스처를 고증하세요.
 
 [엔지니어링 핵심 수칙]
 1. [출력 환경] 맞춤형 라우팅 가이드:
@@ -812,7 +816,7 @@ JSON 스키마:
   "reference_analysis": "곡 사운드 텍스처 및 레코딩 역사 요약 (2줄)",
   "hardware_compensation_tip": "사용자 장비와의 차이를 메우기 위한 보정 팁",
   "global_output_routing": {
-    "cab_ir_status": "Enabled (Active) 또는 Bypass (Off)",
+    "cab_ir_status": "Active 또는 Bypass (Off)",
     "high_cut": "6.8kHz",
     "low_cut": "80Hz",
     "output_level": "Instrument 또는 Line",
@@ -890,6 +894,7 @@ JSON 스키마:
   ]
 }`;
 
+    // 쿼터 초과 시 검색 도구를 제외하고 자체 지식으로 즉시 재시도하는 안전 호출 로직
     async function generateTone() {
       const apiKey = localStorage.getItem("gemini_api_key");
       if (!apiKey) { alert("먼저 상단 [Key] 버튼을 눌러 API 키를 등록해주세요."); openApiKeyModal(); return; }
@@ -914,22 +919,41 @@ JSON 스키마:
       - 페달/모델러: ${userGear.pedals.join(", ")}
       - 앰프: ${userGear.amps.join(", ")}
 
-      웹 검색으로 팩트를 확인한 뒤, 선택된 출력 환경(${outputTarget})에 맞춘 글로벌 필터(Cab IR On/Off, High-cut) 및 3단 스냅샷(디지털 0~10 수치 포함)을 JSON으로 작성하세요.
+      선택된 출력 환경(${outputTarget})에 맞춘 글로벌 필터(Cab IR On/Off, High/Low-cut) 및 3단 스냅샷(디지털 0~10 수치 포함)을 JSON으로 작성하세요.
       `;
 
-      try {
-        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`;
-        const response = await fetch(endpoint, {
-          method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            tools: [{ googleSearch: {} }], 
-            system_instruction: { parts: [{ text: SYSTEM_PROMPT_RIG_PRO }] },
-            contents: [{ parts: [{ text: userPayload }] }],
-            generationConfig: { temperature: 0.2 }
-          })
-        });
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`;
 
-        if (!response.ok) { const errBody = await response.json().catch(() => ({})); throw new Error(errBody.error?.message || response.statusText); }
+      async function callAPI(useSearch) {
+        const body = {
+          system_instruction: { parts: [{ text: SYSTEM_PROMPT_RIG_PRO }] },
+          contents: [{ parts: [{ text: userPayload }] }],
+          generationConfig: { temperature: 0.2 }
+        };
+        if (useSearch) {
+          body.tools = [{ googleSearch: {} }];
+        }
+        return await fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body)
+        });
+      }
+
+      try {
+        let response = await callAPI(true);
+
+        // 429(할당량 초과) 발생 시 검색 쿼터를 끄고 즉시 자동 재시도
+        if (!response.ok && (response.status === 429 || response.status === 503)) {
+          console.warn("검색 쿼터 초과: 자체 지식 기반 모드로 자동 전환합니다.");
+          response = await callAPI(false);
+        }
+
+        if (!response.ok) {
+          const errBody = await response.json().catch(() => ({}));
+          throw new Error(errBody.error?.message || response.statusText || ("HTTP " + response.status));
+        }
+
         const data = await response.json();
         const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
         if (!rawText) throw new Error("분석 데이터를 수신하지 못했습니다.");
@@ -951,8 +975,15 @@ JSON 스키마:
         activeSceneIdx = 0;
 
         renderAll(artist, song, tone, sources);
-      } catch (err) { alert("오류 발생: " + err.message); } 
-      finally { document.getElementById("loading").classList.add("hidden"); }
+      } catch (err) {
+        if (err.message.includes("quota") || err.message.includes("429")) {
+          alert("무료 API 쿼터가 일시적으로 초과되었습니다. 약 1분 후 다시 시도해주세요.");
+        } else {
+          alert("오류 발생: " + err.message);
+        }
+      } finally {
+        document.getElementById("loading").classList.add("hidden");
+      }
     }
 
     function renderAll(artist, song, tone, sources) {
@@ -961,7 +992,7 @@ JSON 스키마:
       document.getElementById("res-summary").innerText = tone.reference_analysis;
       document.getElementById("res-compensation").innerText = tone.hardware_compensation_tip;
 
-      // [1번 기능 UI 렌더링]: 글로벌 출력 환경 가이드
+      // 글로벌 출력 환경 가이드
       const outRouting = tone.global_output_routing || {};
       document.getElementById("output-target-badge").innerText = currentToneBundle.outputTargetName || 'Output Rig';
       
@@ -1052,7 +1083,7 @@ JSON 스키마:
       document.getElementById("cab-mic-details").innerText = active.amp_and_cab.cab_and_mic;
       document.getElementById("amp-peq-guide").innerText = active.amp_and_cab.peq_guide;
 
-      // [3번 기능]: 파워앰프 딥 파라미터 배지 렌더링
+      // 파워앰프 딥 파라미터 (Master, Sag, Bias)
       const deepContainer = document.getElementById("deep-params-container");
       deepContainer.innerHTML = "";
       const deepParams = active.amp_and_cab.deep_params || { Master: "6.0", Sag: "4.0", Bias: "6.0" };
